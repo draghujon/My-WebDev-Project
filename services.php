@@ -100,7 +100,7 @@
             <small>
               <?= $row['price'] ?>
 
-              <?php if(isset($_SESSION['admin'])): ?>
+              <?php if(isset($_SESSION['admin']) && $_SESSION['admin'] === 1): ?>
               	<a href="updateDeleteServices.php?id=<?= $row['id'] ?>">edit</a>
 <!--               <form action="updateDeleteServices.php?id={$row['id']}" method="GET">
 
