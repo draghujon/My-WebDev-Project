@@ -8,6 +8,7 @@
 ----------------->
 <?php
 	session_start();
+	require 'PDFlib.php';
 	if(isset($_POST['act']))
 	{
 		if($_POST['act'] === 'logout')
@@ -33,6 +34,46 @@
 	{
 
 	}
+function LoadJpeg($imgname)
+{
+    /* Attempt to open */
+    $im = @imagecreatefromjpeg($imgname);
+
+    /* See if it failed */
+    if(!$im)
+    {
+        /* Create a black image */
+        $im  = imagecreatetruecolor(150, 30);
+        $bgc = imagecolorallocate($im, 255, 255, 255);
+        $tc  = imagecolorallocate($im, 0, 0, 0);
+
+        imagefilledrectangle($im, 0, 0, 150, 30, $bgc);
+
+        /* Output an error message */
+        imagestring($im, 1, 5, 5, 'Error loading ' . $imgname, $tc);
+    }
+
+    return $im;
+}
+
+
+
+function show_image($image, $width, $height) {
+        //$this->helper('file');                   why need this?
+        //$image_content = read_file($image);      We does not want to use this as output.
+
+        //resize image           
+        $image = imagecreatefromjpeg($image);
+        $thumbImage = imagecreatetruecolor(50, 50);
+        imagecopyresized($thumbImage, $image, 0, 0, 0, 0, 50, 50, $width, $height);
+        imagedestroy($image);
+        //imagedestroy($thumbImage); do not destroy before display :)
+        ob_end_clean();  // clean the output buffer ... if turned on.
+        header('Content-Type: image/jpeg');  
+        imagejpeg($thumbImage); //you does not want to save.. just display
+        imagedestroy($thumbImage); //but not needed, cause the script exit in next line and free the used memory
+        exit;
+  }
 
 if(isset($_FILES['image']))
 {
@@ -40,21 +81,17 @@ if(isset($_FILES['image']))
 	
 	require 'connect.php';
 
-	//require 'imageResize.php';
 	// file_upload_path() - Safely build a path String that uses slashes appropriate for our OS.
     // Default upload path is an 'uploads' sub-folder in the current folder.
     function file_upload_path($original_filename, $upload_subfolder_name = 'uploads') 
     {
        $current_folder = dirname(__FILE__);
        
-       // Build an array of paths segment names to be joins using OS specific slashes.
        $path_segments = [$current_folder, $upload_subfolder_name, basename($original_filename)];
-       
-       // The DIRECTORY_SEPARATOR constant is OS specific.
+
        return join(DIRECTORY_SEPARATOR, $path_segments);
     }
 
-    // file_is_an_image() - Checks the mime-type & extension of the uploaded file for "image-ness".
     function file_is_an_image($temporary_path, $new_path) 
     {
     		$allowed_mime_types      = ['image/gif', 'image/jpeg', 'image/png', 'document/pdf'];
@@ -62,32 +99,25 @@ if(isset($_FILES['image']))
         	global $allowed_file_extensions;
         	$allowed_file_extensions = ['gif', 'jpg', 'jpeg', 'png', 'pdf'];
 
-        	//var_dump(getimagesize($temporary_path)['mime']);
-
 	        global $actual_file_extension;
 	        $actual_file_extension   = pathinfo($new_path, PATHINFO_EXTENSION);
-	        //$actual_mime_type        = getimagesize($temporary_path);//['mime'];
-	        //var_dump($actual_mime_type);
 
-	        //echo $temporary_path;
 	        $file_extension_is_valid = in_array($actual_file_extension, $allowed_file_extensions);
-	        //$mime_type_is_valid      = in_array($actual_mime_type, $allowed_mime_types);
 	        
-	        return $file_extension_is_valid;//	&& $mime_type_is_valid;
+	        return $file_extension_is_valid;
     }
-  
+
     $image_upload_detected = isset($_FILES['image']) && ($_FILES['image']['error'] === 0);
     $upload_error_detected = isset($_FILES['image']) && ($_FILES['image']['error'] > 0);
-    //var_dump($image_upload_detected);
+
     if ($image_upload_detected) 
     { 
         $image_filename        = $_FILES['image']['name'];
         $temporary_image_path  = $_FILES['image']['tmp_name'];
         $new_image_path        = file_upload_path($image_filename);
 
-        //echo($image_file);
 		//$image_base64 = base64_encode(file_get_contents($temporary_image_path));
-		//echo $temporary_image_path;
+
         if (file_is_an_image($temporary_image_path, $new_image_path)) 
         {
             move_uploaded_file($temporary_image_path, $new_image_path);
@@ -95,42 +125,19 @@ if(isset($_FILES['image']))
 
             $image_file = basename($new_image_path);
 
-            //$image_name = filter_input(INPUT_GET, $image_file, FILTER_SANITIZE_STRING);
-
             $query = "INSERT INTO images (name) VALUES (:imagename)";
-			//echo $new_image_path;
+
 			echo $image_file;
 	        $statement = $db->prepare($query);
 	        $statement->bindValue(':imagename', $image_file);
 	        //$statement->bindValue(':image', $image);
 			$statement->execute(); 
-			echo "h!!!!AFTER";   
-	
+ 
+			//show_image($image_filename, 200, 200);
 			$insert_id = $db->lastInsertId(); 
-			print_r($db->errorInfo());  // Result = Array ( [0] => 00000 [1] => [2] => )
+			//print_r($db->errorInfo());  // Result = Array ( [0] => 00000 [1] => [2] => )
         }
 	}
-        // Do the DB Query and add the image to the table
-        //$name = filter_var_array($_FILES, $_FILES['image']['name']);
-        //var_dump($name);
-        //var_dump($_FILES['image']['name']);
-        
-        //$image = 'data:image/' . $actual_file_extension . ';base64,' . $image_base64;
-        //print_r($image);
-   //      if(in_array($actual_file_extension, $allowed_file_extensions))
-   //      {
-   //      	//$query = "INSERT INTO images SET 'id' = NULL, 'name' = $imageName;";
-	  //       $query = "INSERT INTO images ('name') VALUES (':imageName')";
-
-	  //       $statement = $db->prepare($query);
-	  //       $statement->bindValue(':imageName', $image_filename);
-	  //       //$statement->bindValue(':image', $image);
-			// $statement->execute(); 
-			
-			// $insert_id = $db->lastInsertId();
-   //      }
-
-
 }
 ?>
 <!DOCTYPE html>
@@ -220,7 +227,26 @@ if(isset($_FILES['image']))
 					</form>
 
 				</fieldset>
+
+				<fieldset>
+					
+
+						
+
+						<?php if(isset($_FILES['image']) && $_FILES['image']['error'] > 0): ?>
+							<p>Sorry, an error happened while uploading ur image. please try again. 
+								Error Number: <?= $_FILES['image']['error'] ?></p>
+            				<img class="imageupload" src="uploads\<?= $image_file ?>"/>
+        				<?php elseif (isset($_FILES['image'])): ?>
+        						<p>IN HERE</p>
+            				<img class="imageupload" src="uploads\<?= $image_file ?>"/>
+        				<?php endif ?>
+						
+				
+
+				</fieldset>
 		</div>
+
 
 <?php if(isset($_FILES['image'])): ?>
 		<?php if ($upload_error_detected): ?>
