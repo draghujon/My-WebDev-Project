@@ -123,7 +123,7 @@ if(isset($_POST['create']))
     </nav>
 
     
-        <div class="blog_post">
+        <div id="services">
           <h4><?= $serv_name ?></h4>
           <p>
             <?= $serv_desc ?>
@@ -139,10 +139,10 @@ if(isset($_POST['create']))
             Comments
           </p>
             <?php while($row2 = $statement2->fetch()): ?>
-                <p><?= $row2['comments'] ?></p>
+                <p><?= "Comment : " . $row2['comments'] ?></p>
             <?php endwhile ?>
         </div>
-                
+            <div id="comments">
                 <form action="#" method="post">
                     <div id="content">
                         <div>
@@ -157,7 +157,7 @@ if(isset($_POST['create']))
                     </div>
                     <input type="submit" name="create" value="Comment">
                 </form>
-        
+            </div>
 
         <footer>
         <nav id = "footerBanner">

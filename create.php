@@ -28,7 +28,7 @@
 			$isTrue = true;
 		}
 
-		if($_POST['command'] === 'Sign Up' && $isTrue)
+		if($_POST['command'] === 'Sign Up' || $_POST['command'] === 'Create' && $isTrue)
 		{
 			require 'connect.php';
 			//Do the insert query
@@ -165,8 +165,11 @@
           </div>
 
       </div>
-      
-      <input type="submit" name="command" value="Sign Up" />
+      <?php if($_SESSION['admin'] == 1): ?>
+      	<input type="submit" name="command" value="Create" />
+      <?php else: ?>
+		<input type="submit" name="command" value="Sign Up" />
+	  <?php endif ?>
     </form> 
   </div>
 	<div class="mylogo">

@@ -99,18 +99,18 @@
         <?php while ($row = $statement->fetch()): ?>
 		
 
-        <div class="comments">
+        <div id="comments">
           <h4><?= "Created at: " . $row['created_At'] ?></h4>
           <p>
           	<?= "Username: " . $row['username'] ?>
           	<br />
           	<br />
             <?= $row['comments'] ?>
-            <?= $row['id'] ?>
+            
           </p>
           <p>
             <small>
-            	<?php var_dump($row); ?>
+            	
               <?php if(isset($_SESSION['admin'])): ?>
               	<a href="updateComments.php?id=<?= $row['id'] ?>">edit</a>
 <!--               <form action="updateDeleteServices.php?id={$row['id']}" method="GET">

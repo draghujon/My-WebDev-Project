@@ -46,10 +46,25 @@ if(isset($_POST['command']))
 	require 'connect.php';
 	if($_POST['command'] === 'Select')
 	{
-		$query = "SELECT id, username, firstname, lastname, streetaddy, city, province, email, phone FROM user";
+		$query = "SELECT id, username, password, firstname, lastname, streetaddy, city, province, email, phone FROM user";
 
 		$statement = $db->prepare($query);
 		$statement->execute();
+		$row = $statement->fetch();
+		if(!empty($row))
+		{
+			echo "IN HERE2";
+			$user_id = $row['id'];
+			$user_name = $row['username'];
+			$user_hash = $row['password'];
+			$user_fname = $row['firstname'];
+			$user_lname = $row['lastname'];
+			$user_street = $row['streetaddy'];
+			$user_city = $row['city'];
+			$user_province = $row['province'];
+			$user_email = $row['email'];
+			$user_phone = $row['phone'];
+		}
 	}
 
 	if($_POST['command'] === 'Delete')
@@ -66,23 +81,22 @@ if(isset($_POST['command']))
 
 if(isset($_POST['update']))
 {
-	echo "in update:l";
 	require 'connect.php';
-	   if($_POST['username'] === '' ||
-		   $_POST['firstname'] === '' ||
-		   $_POST['lastname'] === '' ||
-		   $_POST['streetaddy'] === '' ||
-		   $_POST['city'] === '' ||
-		   $_POST['province'] === '' ||
-		   $_POST['email'] === '' ||
-		   $_POST['phone'] === '')
-	    {
+    if($_POST['username'] === '' ||
+	   $_POST['firstname'] === '' ||
+	   $_POST['lastname'] === '' ||
+	   $_POST['streetaddy'] === '' ||
+	   $_POST['city'] === '' ||
+	   $_POST['province'] === '' ||
+	   $_POST['email'] === '' ||
+	   $_POST['phone'] === '')
+	   {
 	   		$isTrue = false;
-		}
-		else
-		{
-			$isTrue = true;
-		}
+	   }
+	   else
+	   {
+	   		$isTrue = true;
+	   }
 
 	if($_POST['update'] === 'Update' && $isTrue)
 	{
@@ -116,7 +130,6 @@ if(isset($_POST['update']))
 		$statement->execute();
 
 		$insert_id = $db->lastInsertId();
-
 	}
 }
 	if(isset($_POST['act']))
@@ -191,13 +204,12 @@ if(isset($_POST['update']))
 
 				  <p>You are an admin so you have access to these CRUD functionalities</p>
 			      <input type="submit" name="command" value="Select" />
-
-			      <input type="submit" name="command" value="Delete" />
+			      <a href="create.php">Create User</a>
 			</form>
 		</div>
 	<?php endif ?>
 
-	<?php if(isset($_POST['command']) && $_POST['command'] === 'Delete'): ?>
+	<!-- <?php if(isset($_POST['command']) && $_POST['command'] === 'Delete'): ?>
 		<form action="userinfo.php" method="post">
 			<div id="content">
 				<div>
@@ -208,8 +220,8 @@ if(isset($_POST['update']))
 			<input type="submit" name="command" value="Delete" />
 		</form>
 	<?php endif ?>
-
-	<?php if(isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
+ -->
+	<?php if(!empty($row) && $_SESSION['admin'] == 1): ?>
 		<form action="userinfo.php" method="post">
 			<div id="content">
 				<!-- <div>
@@ -283,7 +295,7 @@ if(isset($_POST['update']))
 			<?php if(isset($statement)): ?>
 				<?php if ($statement->rowCount() > 0): ?> 
 				    <?php while($row = $statement->fetch()): ?>
-				        <?= "id: " . $row["id"] . " - UserName: " . $row["username"]; ?><a href="userinfo.php?id=<?= $row['id'] ?>">Edit</a><br>
+				        <?= "id: " . $row["id"] . " - UserName: " . $row["username"]; ?><a href="userinfo.php?id=<?= $row['id'] ?>">Edit</a><---><a href="userDelete.php?id=<?= $row['id'] ?>">Delete</a><br>
 
 				    <?php endwhile ?>
 				<?php endif ?>
