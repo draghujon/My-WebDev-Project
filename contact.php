@@ -125,7 +125,7 @@ if(isset($_FILES['image']))
 
             $image_file = basename($new_image_path);
 
-            $query = "INSERT INTO images (name) VALUES (:imagename)";
+            //$query = "INSERT INTO images (name) VALUES (:imagename)";
 
 			echo $image_file;
 	        $statement = $db->prepare($query);
@@ -136,6 +136,37 @@ if(isset($_FILES['image']))
 			//show_image($image_filename, 200, 200);
 			$insert_id = $db->lastInsertId(); 
 			//print_r($db->errorInfo());  // Result = Array ( [0] => 00000 [1] => [2] => )
+
+		//$file = $_FILES['image'];
+		$percent = 0.5;
+		list($width, $height) = getimagesize('uploads/' . $image_file);
+		$newwidth = $width * $percent;
+		$newheight = $height * $percent;
+		
+		echo $width . " " . $height  . "<br>";
+
+		echo $newwidth . " " . $newheight . "<br>";
+
+		$thumb = imagecreatetruecolor($newwidth, $newheight);
+		$image = imagecreatefromjpeg('uploads/' . $image_file);
+		//to resize:
+
+		//imagecopy($thumb, $image, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
+		// Resample
+
+		// Merge the differences onto the output image
+//imagecopy($thumb, $image, 0, 0, 0, 0, imagesx($image) - 1, imagesy($image) - 1);
+		imagecopy($thumb, $image, imagesx($image), 0, 0, 0, imagesx($image) - 1, imagesy($image) - 1);
+//imagedestroy($logo1);
+//imagedestroy($logo2);
+   		$img = LoadJpeg($thumb);
+   		//imagejpeg($img)
+		//$image_thumb = $thumb;
+//$image = imagecreatefromjpeg($filename);
+//imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+		//$image->resizeToWidth(400);
+		//$image_file->save($thumb);
+		//imagejpeg($thumb);
         }
 	}
 }
@@ -239,7 +270,7 @@ if(isset($_FILES['image']))
             				<img class="imageupload" src="uploads\<?= $image_file ?>"/>
         				<?php elseif (isset($_FILES['image'])): ?>
         						<p>IN HERE</p>
-            				<img class="imageupload" src="uploads\<?= $image_file ?>"/>
+            				<img class="imageupload" src="uploads\<?= $img  ?>"/>
         				<?php endif ?>
 						
 				
