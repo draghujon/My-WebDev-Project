@@ -24,15 +24,9 @@
 			unset($_SESSION['phone']);
 			session_unset();
 		}
-		else
-		{
-
-		}
 	}
-	else
-	{
 
-	}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

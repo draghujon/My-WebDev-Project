@@ -84,6 +84,12 @@
 			<li><a href = "about.php">About Us</a></li>
 		</ul>
 	</nav>
+	
+	<form method="post" action="search.php" id="searchform">
+		<input type="text" name="search">
+		<input type="submit" name="submit" value="Search">
+	</form>
+
 	<?php if(isset($_SESSION['admin'])): ?>
 		<h2><a href="createServices.php">Create Services</a></h2>
 	<?php endif ?>

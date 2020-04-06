@@ -8,7 +8,11 @@
 ----------------->
 <?php
 	session_start();
-	require 'PDFlib.php';
+
+	include 'ImageResize.php';
+	include 'ImageResizeException.php';
+	$img = new ImageResize();
+						//$img = new ImageResize($image_filename);
 	if(isset($_POST['act']))
 	{
 		if($_POST['act'] === 'logout')
@@ -25,59 +29,40 @@
 			unset($_SESSION['phone']);
 			session_unset();
 		}
-		else
-		{
-
-		}
 	}
-	else
-	{
 
-	}
-function LoadJpeg($imgname)
+if(isset($_POST['command']))
 {
-    /* Attempt to open */
-    $im = @imagecreatefromjpeg($imgname);
+	if($_POST['command'] === 'Submit')
+	{
+		require 'connect.php';
 
-    /* See if it failed */
-    if(!$im)
-    {
-        /* Create a black image */
-        $im  = imagecreatetruecolor(150, 30);
-        $bgc = imagecolorallocate($im, 255, 255, 255);
-        $tc  = imagecolorallocate($im, 0, 0, 0);
+			$fname = filter_input(INPUT_POST, 'fname', FILTER_SANITIZE_STRING);
+			$lname = filter_input(INPUT_POST, 'lname', FILTER_SANITIZE_STRING);
+			$customernum = filter_input(INPUT_POST, 'customernum', FILTER_SANITIZE_STRING);
+			$email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
+			$feedback = filter_input(INPUT_POST, 'feedback', FILTER_SANITIZE_STRING);
 
-        imagefilledrectangle($im, 0, 0, 150, 30, $bgc);
+	        $query = "INSERT INTO contact (fname, lname, phone, email, comments) VALUES (:fname, :lname, :customernum, :email, :feedback)";
 
-        /* Output an error message */
-        imagestring($im, 1, 5, 5, 'Error loading ' . $imgname, $tc);
-    }
+			
+	        $statement = $db->prepare($query);
+	        $statement->bindValue(':fname', $fname);
+	        $statement->bindValue(':lname', $lname);
+	        $statement->bindValue(':customernum', $customernum);
+	        $statement->bindValue(':email', $email);
+	        $statement->bindValue(':feedback', $feedback);
 
-    return $im;
+			$statement->execute(); 
+ 
+			$insert_id = $db->lastInsertId(); 
+
+	}
 }
-
-
-
-function show_image($image, $width, $height) {
-        //$this->helper('file');                   why need this?
-        //$image_content = read_file($image);      We does not want to use this as output.
-
-        //resize image           
-        $image = imagecreatefromjpeg($image);
-        $thumbImage = imagecreatetruecolor(50, 50);
-        imagecopyresized($thumbImage, $image, 0, 0, 0, 0, 50, 50, $width, $height);
-        imagedestroy($image);
-        //imagedestroy($thumbImage); do not destroy before display :)
-        ob_end_clean();  // clean the output buffer ... if turned on.
-        header('Content-Type: image/jpeg');  
-        imagejpeg($thumbImage); //you does not want to save.. just display
-        imagedestroy($thumbImage); //but not needed, cause the script exit in next line and free the used memory
-        exit;
-  }
 
 if(isset($_FILES['image']))
 {
-
+	echo "IN IMAGE";
 	
 	require 'connect.php';
 
@@ -125,7 +110,7 @@ if(isset($_FILES['image']))
 
             $image_file = basename($new_image_path);
 
-            //$query = "INSERT INTO images (name) VALUES (:imagename)";
+            $query = "INSERT INTO images (name) VALUES (:imagename)";
 
 			echo $image_file;
 	        $statement = $db->prepare($query);
@@ -135,41 +120,14 @@ if(isset($_FILES['image']))
  
 			//show_image($image_filename, 200, 200);
 			$insert_id = $db->lastInsertId(); 
-			//print_r($db->errorInfo());  // Result = Array ( [0] => 00000 [1] => [2] => )
 
-		//$file = $_FILES['image'];
-		$percent = 0.5;
-		list($width, $height) = getimagesize('uploads/' . $image_file);
-		$newwidth = $width * $percent;
-		$newheight = $height * $percent;
-		
-		echo $width . " " . $height  . "<br>";
 
-		echo $newwidth . " " . $newheight . "<br>";
+		}
 
-		$thumb = imagecreatetruecolor($newwidth, $newheight);
-		$image = imagecreatefromjpeg('uploads/' . $image_file);
-		//to resize:
 
-		//imagecopy($thumb, $image, 0, 0, 0, 0, $newwidth, $newheight, $width, $height);
-		// Resample
-
-		// Merge the differences onto the output image
-//imagecopy($thumb, $image, 0, 0, 0, 0, imagesx($image) - 1, imagesy($image) - 1);
-		imagecopy($thumb, $image, imagesx($image), 0, 0, 0, imagesx($image) - 1, imagesy($image) - 1);
-//imagedestroy($logo1);
-//imagedestroy($logo2);
-   		$img = LoadJpeg($thumb);
-   		//imagejpeg($img)
-		//$image_thumb = $thumb;
-//$image = imagecreatefromjpeg($filename);
-//imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-		//$image->resizeToWidth(400);
-		//$image_file->save($thumb);
-		//imagejpeg($thumb);
-        }
 	}
 }
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -206,7 +164,7 @@ if(isset($_FILES['image']))
 	</nav>
 
 		<div id="wrapper">
-			<form id="contact" method="post" name="command" action="thankyou.php">
+			<form id="contact" method="post" name="command" action="contact.php">
 				<h3>Contact Us</h3>
 				<p>Please enter your contact information</p>
 				<fieldset>
@@ -251,7 +209,7 @@ if(isset($_FILES['image']))
 
 				<fieldset>
 
-					<form method="post" action="contact.php" enctype="multipart/form-data">
+					<form method="post" action="#" enctype="multipart/form-data">
 						<label for="image">Image Filename: </label>
 						<input type="file" name="image" id="image">
 						<input type="submit" name="submit" value="Upload Image">

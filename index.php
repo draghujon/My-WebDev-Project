@@ -9,8 +9,7 @@
 <?php
 	session_start();
 	require 'connect.php';
-	//re	require 'connect.php';quire 'authenticate.php';
-	
+
 	if(!isset($_SESSION['username']))
 	{
 		$_SESSION['username'] = 'Guest';
@@ -34,17 +33,33 @@
 			unset($_SESSION['phone']);
 			session_unset();
 		}
-		else
-		{
-
-		}
 	}
-	else
+
+
+	if(isset($_GET['sort']))
 	{
+		echo "IN HERE";
+		if($_GET['sort'] === 'created_At')
+		{
+			echo "Created at";
+			$sort = 'c.created_At';
+		}
+		else if($_GET['sort'] === 'username')
+		{
+			echo "Username";
+			$sort = 'u.username';
+		}
+		else if($_GET['sort'] === 'userIdFK')
+		{
+			echo "User ID";
+			$sort = 'c.userIdFK';
+		}
 
-	}
+	}	
+
+		$sort = filter_input(INPUT_GET, 'sort', FILTER_SANITIZE_STRING);
 	
-		$query = "SELECT c.id, c.userIdFK, c.comments, c.created_At, u.username FROM comments c LEFT JOIN user u ON u.id = c.userIdFK ORDER BY c.created_At DESC";
+		$query = "SELECT c.id, c.userIdFK, c.comments, c.created_At, u.username FROM comments c LEFT JOIN user u ON u.id = c.userIdFK ORDER BY $sort DESC";
 
         $statement = $db->prepare($query); 
 
@@ -85,23 +100,35 @@
 			<li><a href = "about.php">About Us</a></li>
 		</ul>
 	</nav>
+
+		<form method="post" action="search.php" id="searchform">
+		<input type="text" name="search">
+		<input type="submit" name="submit" value="Search">
+	</form>
+	
 	<div id= "content">
 		<p align="center">Welcome to my page, check out my various pages to see what we offer.</p> 
 	</div>
 	<div class="mylogo">
 		<!-- This is MY personal LOGO from my real business I ran so there is no credit for the image except to myself :) -->
 	</div>
-	
 
+		<div id="comments">
+			<br /><p><h3>Please pick a sorting option to see all the comments</h3></p><br />
+			<br /><a href="index.php?sort=created_At">Sort by Created_at</a><br />
+			<br /><a href="index.php?sort=username">Sort by username</a><br />
+			<br /><a href="index.php?sort=userIdFK">Sort by user id</a><br />
 		
 			<h4><a href="createComment.php">Create a comment</a></h4>
-	
-        <?php while ($row = $statement->fetch()): ?>
-		
+		</div>
+
+        <?php while ($row = $statement->fetch()): ?>	
 
         <div id="comments">
           <h4><?= "Created at: " . $row['created_At'] ?></h4>
           <p>
+          	<?= "ID: " . $row['userIdFK'] ?>
+          	<br />
           	<?= "Username: " . $row['username'] ?>
           	<br />
           	<br />

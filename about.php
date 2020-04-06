@@ -67,6 +67,12 @@
 			<li><a href = "about.php">About Us</a></li>
 		</ul>
 	</nav>
+
+		<form method="post" action="search.php" id="searchform">
+			<input type="text" name="search">
+			<input type="submit" name="submit" value="Search">
+		</form>
+
 	<div id= "content">
 		<h3>Welcome to CF Computing.. the place where things get done!</h3>
 		<p>Back in 2014 I became certified as a Computer Network Technician and have since continued to upgrade my skill set by taking Business Information Technology at Red River College.</p>
