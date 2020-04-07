@@ -73,7 +73,16 @@
 	margin: 10px 0px;
 
 }
-
+.captcha-image
+{
+	padding: 5px 5px;
+	background-color: #C9C5DE;
+}
+.refresh-captcha
+{
+		padding: 5px 5px;
+	background-color: #C9C5DE;
+}
 .error
 {
 	color: red;

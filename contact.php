@@ -9,10 +9,6 @@
 <?php
 	session_start();
 
-	include 'ImageResize.php';
-	include 'ImageResizeException.php';
-	$img = new ImageResize();
-						//$img = new ImageResize($image_filename);
 	if(isset($_POST['act']))
 	{
 		if($_POST['act'] === 'logout')
@@ -31,11 +27,15 @@
 		}
 	}
 
+
 if(isset($_POST['command']))
 {
 	if($_POST['command'] === 'Submit')
 	{
-		require 'connect.php';
+		//echo $_SESSION['captcha_text'];
+		if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) 
+		{
+			require 'connect.php';
 
 			$fname = filter_input(INPUT_POST, 'fname', FILTER_SANITIZE_STRING);
 			$lname = filter_input(INPUT_POST, 'lname', FILTER_SANITIZE_STRING);
@@ -57,15 +57,40 @@ if(isset($_POST['command']))
  
 			$insert_id = $db->lastInsertId(); 
 
+			$_SESSION['fname'] = $fname;
+			$_SESSION['lname'] = $lname;
+			$_SESSION['customernum'] = $customernum;
+			$_SESSION['email'] = $email;
+
+			if(empty($feedback))
+			{
+				$_SESSION['feedback'] = 'User did not enter any feedback.';
+			}
+			else
+			{
+				$_SESSION['feedback'] = $feedback;
+			}
+
+			header("Location: mailtrap.php");
+
+			// require 'CaptchasDotNet.php';
+			// $captchas = new CaptchasDotNet ('demo', 'secret',
+   //                              '/tmp/captchasnet-random-strings','3600',
+   //                              'abcdefghkmnopqrstuvwxyz','6',
+   //                              '240','80','000088');
+		} else {
+        	echo '<p>You entered an incorrect Captcha.</p>';
+			//unset($_SESSION['captcha_text']);
+			//exit;
+    }
+			
 	}
 }
 
 if(isset($_FILES['image']))
-{
-	echo "IN IMAGE";
-	
+{	
 	require 'connect.php';
-
+	
 	// file_upload_path() - Safely build a path String that uses slashes appropriate for our OS.
     // Default upload path is an 'uploads' sub-folder in the current folder.
     function file_upload_path($original_filename, $upload_subfolder_name = 'uploads') 
@@ -121,6 +146,25 @@ if(isset($_FILES['image']))
 			//show_image($image_filename, 200, 200);
 			$insert_id = $db->lastInsertId(); 
 
+			$imgExt=strtolower(pathinfo($image_filename,PATHINFO_EXTENSION));
+			$pic=rand(1000, 1000000).".".$imgExt;
+
+			include 'ImageResize.php';
+			include 'ImageResizeException.php';
+
+			//echo file_upload_path($image_filename);
+			$img = new \Gumlet\ImageResize(file_upload_path($image_filename));
+			$img->resize(200, 300);
+			//$img->interlace = 0;
+
+			$img->save('uploads/' . 'thumb.' . $imgExt);
+			
+			// //$result = $img->getImageAsString(IMAGETYPE_PNG, 4);
+			// $file = 'uploads/thumb.jpg';
+			// $type = 'image/jpeg';
+			// header('Content-Type:'.$type);
+			// header('Content-Length: ' . filesize($file));
+			// readfile($file);
 
 		}
 
@@ -164,7 +208,7 @@ if(isset($_FILES['image']))
 	</nav>
 
 		<div id="wrapper">
-			<form id="contact" method="post" name="command" action="contact.php">
+			<form id="contact" method="post" name="command" action="contact.php" enctype="multipart/form-data">
 				<h3>Contact Us</h3>
 				<p>Please enter your contact information</p>
 				<fieldset>
@@ -218,21 +262,34 @@ if(isset($_FILES['image']))
 				</fieldset>
 
 				<fieldset>
-					
+					<div class="formfield">
+						<?php 
+						$captcha = $_SESSION['captcha_text'];
+						 echo $_SESSION['captcha_text'];
+						 
+						?>
+	
+					    <label for="captcha" class="customer">Please Enter the Captcha Text</label>
+					    <br />
 
-						
+					    <img src="captcha.php" alt="CAPTCHA" class="captcha-image"><i class="fas fa-redo refresh-captcha"></i>
+					    <br />
+					    <input type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
+
+					    <div class="customer_error error" id="captcha_error">* Please enter captcha!</div>
+					</div>
+				</fieldset>
+				<fieldset>
 
 						<?php if(isset($_FILES['image']) && $_FILES['image']['error'] > 0): ?>
 							<p>Sorry, an error happened while uploading ur image. please try again. 
 								Error Number: <?= $_FILES['image']['error'] ?></p>
             				<img class="imageupload" src="uploads\<?= $image_file ?>"/>
         				<?php elseif (isset($_FILES['image'])): ?>
-        						<p>IN HERE</p>
-            				<img class="imageupload" src="uploads\<?= $img  ?>"/>
+            				<img src="uploads\thumb.<?= $imgExt ?>"  />
         				<?php endif ?>
 						
 				
-
 				</fieldset>
 		</div>
 
@@ -270,5 +327,11 @@ if(isset($_FILES['image']))
 		<!-- image credit(both images) : https://www.google.com/search?q=computer+images&rlz=1C1GCEA_enCA831CA831&tbm=isch&sxsrf=ACYBGNTVhWyi6umZY0WZmyEGXQzpWGoeVg:1573689224689&source=lnt&tbs=sur:fc&sa=X&ved=0ahUKEwiqr-WZsejlAhWV4J4KHa6FDroQpwUIJA&biw=1920&bih=969&dpr=1 -->
 		<img src = "footerimage.jpg" alt = "computer" id ="pic" />
 	</footer>
+	<script>
+		var refreshButton = document.querySelector(".refresh-captcha");
+			refreshButton.onclick = function() {
+			  document.querySelector(".captcha-image").src = 'captcha.php?' + Date.Now();
+			}
+	</script>
 	</body>
 </html>
