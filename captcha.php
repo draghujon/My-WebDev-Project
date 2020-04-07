@@ -46,6 +46,8 @@
 	$string_length = 6;
 	$captcha_string = generate_string($permitted_chars, $string_length);
 	$_SESSION['captcha_text'] = $captcha_string;
+	//var_dump($_SESSION['captcha_text']);
+	//exit;
 	for($i = 0; $i < $string_length; $i++) {
 	  $letter_space = 170/$string_length;
 	  $initial = 15;
@@ -62,17 +64,17 @@
 	  //$_SESSION['captcha_string'] = $_POST['captcha'];
 		//$captcha = $_SESSION['captcha_text'];
 	//var_dump($captcha_string);
-	ob_start();
+	//ob_start();
 	//imagestring($image, 25, 50, 17,  $captcha_string, $text_color); 
-
-	imagepng($image);
-	$contents = ob_get_contents();
-	ob_end_clean();
-	imagedestroy($image);
-	ob_clean();
 	header("Content-type: image/png");
+	imagepng($image);
+	//$contents = ob_get_contents();
+	//ob_end_clean();
+	imagedestroy($image);
+	//ob_clean();
+
 	
-	echo $contents;
+	//echo $image;
 	//var_dump($captcha_string);
 
 ?>			 

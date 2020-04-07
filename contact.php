@@ -32,6 +32,8 @@ if(isset($_POST['command']))
 {
 	if($_POST['command'] === 'Submit')
 	{
+		//var_dump($_POST);
+		//exit;
 		//echo $_SESSION['captcha_text'];
 		if(isset($_POST['captcha_challenge']) && $_POST['captcha_challenge'] == $_SESSION['captcha_text']) 
 		{
@@ -87,88 +89,91 @@ if(isset($_POST['command']))
 	}
 }
 
-if(isset($_FILES['image']))
-{	
-	require 'connect.php';
-	
-	// file_upload_path() - Safely build a path String that uses slashes appropriate for our OS.
-    // Default upload path is an 'uploads' sub-folder in the current folder.
-    function file_upload_path($original_filename, $upload_subfolder_name = 'uploads') 
-    {
-       $current_folder = dirname(__FILE__);
-       
-       $path_segments = [$current_folder, $upload_subfolder_name, basename($original_filename)];
+if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
+{
+	if(isset($_FILES['image']))
+	{	
+		require 'connect.php';
+		
+		// file_upload_path() - Safely build a path String that uses slashes appropriate for our OS.
+	    // Default upload path is an 'uploads' sub-folder in the current folder.
+	    function file_upload_path($original_filename, $upload_subfolder_name = 'uploads') 
+	    {
+	       $current_folder = dirname(__FILE__);
+	       
+	       $path_segments = [$current_folder, $upload_subfolder_name, basename($original_filename)];
 
-       return join(DIRECTORY_SEPARATOR, $path_segments);
-    }
+	       return join(DIRECTORY_SEPARATOR, $path_segments);
+	    }
 
-    function file_is_an_image($temporary_path, $new_path) 
-    {
-    		$allowed_mime_types      = ['image/gif', 'image/jpeg', 'image/png', 'document/pdf'];
+	    function file_is_an_image($temporary_path, $new_path) 
+	    {
+	    		$allowed_mime_types      = ['image/gif', 'image/jpeg', 'image/png', 'document/pdf'];
 
-        	global $allowed_file_extensions;
-        	$allowed_file_extensions = ['gif', 'jpg', 'jpeg', 'png', 'pdf'];
+	        	global $allowed_file_extensions;
+	        	$allowed_file_extensions = ['gif', 'jpg', 'jpeg', 'png', 'pdf'];
 
-	        global $actual_file_extension;
-	        $actual_file_extension   = pathinfo($new_path, PATHINFO_EXTENSION);
+		        global $actual_file_extension;
+		        $actual_file_extension   = pathinfo($new_path, PATHINFO_EXTENSION);
 
-	        $file_extension_is_valid = in_array($actual_file_extension, $allowed_file_extensions);
-	        
-	        return $file_extension_is_valid;
-    }
+		        $file_extension_is_valid = in_array($actual_file_extension, $allowed_file_extensions);
+		        
+		        return $file_extension_is_valid;
+	    }
 
-    $image_upload_detected = isset($_FILES['image']) && ($_FILES['image']['error'] === 0);
-    $upload_error_detected = isset($_FILES['image']) && ($_FILES['image']['error'] > 0);
+	    $image_upload_detected = isset($_FILES['image']) && ($_FILES['image']['error'] === 0);
+	    $upload_error_detected = isset($_FILES['image']) && ($_FILES['image']['error'] > 0);
 
-    if ($image_upload_detected) 
-    { 
-        $image_filename        = $_FILES['image']['name'];
-        $temporary_image_path  = $_FILES['image']['tmp_name'];
-        $new_image_path        = file_upload_path($image_filename);
+	    if ($image_upload_detected) 
+	    { 
+	        $image_filename        = $_FILES['image']['name'];
+	        $temporary_image_path  = $_FILES['image']['tmp_name'];
+	        $new_image_path        = file_upload_path($image_filename);
 
-		//$image_base64 = base64_encode(file_get_contents($temporary_image_path));
+			//$image_base64 = base64_encode(file_get_contents($temporary_image_path));
 
-        if (file_is_an_image($temporary_image_path, $new_image_path)) 
-        {
-            move_uploaded_file($temporary_image_path, $new_image_path);
+	        if (file_is_an_image($temporary_image_path, $new_image_path)) 
+	        {
+	            move_uploaded_file($temporary_image_path, $new_image_path);
 
 
-            $image_file = basename($new_image_path);
+	            $image_file = basename($new_image_path);
 
-            $query = "INSERT INTO images (name) VALUES (:imagename)";
+	            $query = "INSERT INTO images (name) VALUES (:imagename)";
 
-			echo $image_file;
-	        $statement = $db->prepare($query);
-	        $statement->bindValue(':imagename', $image_file);
-	        //$statement->bindValue(':image', $image);
-			$statement->execute(); 
- 
-			//show_image($image_filename, 200, 200);
-			$insert_id = $db->lastInsertId(); 
+				echo $image_file;
+		        $statement = $db->prepare($query);
+		        $statement->bindValue(':imagename', $image_file);
+		        //$statement->bindValue(':image', $image);
+				$statement->execute(); 
+	 
+				//show_image($image_filename, 200, 200);
+				$insert_id = $db->lastInsertId(); 
 
-			$imgExt=strtolower(pathinfo($image_filename,PATHINFO_EXTENSION));
-			$pic=rand(1000, 1000000).".".$imgExt;
+				$imgExt=strtolower(pathinfo($image_filename,PATHINFO_EXTENSION));
+				$pic=rand(1000, 1000000).".".$imgExt;
 
-			include 'ImageResize.php';
-			include 'ImageResizeException.php';
+				include 'ImageResize.php';
+				include 'ImageResizeException.php';
 
-			//echo file_upload_path($image_filename);
-			$img = new \Gumlet\ImageResize(file_upload_path($image_filename));
-			$img->resize(200, 300);
-			//$img->interlace = 0;
+				//echo file_upload_path($image_filename);
+				$img = new \Gumlet\ImageResize(file_upload_path($image_filename));
+				$img->resize(200, 300);
+				//$img->interlace = 0;
 
-			$img->save('uploads/' . 'thumb.' . $imgExt);
-			
-			// //$result = $img->getImageAsString(IMAGETYPE_PNG, 4);
-			// $file = 'uploads/thumb.jpg';
-			// $type = 'image/jpeg';
-			// header('Content-Type:'.$type);
-			// header('Content-Length: ' . filesize($file));
-			// readfile($file);
+				$img->save('uploads/' . 'thumb.' . $imgExt);
+				
+				// //$result = $img->getImageAsString(IMAGETYPE_PNG, 4);
+				// $file = 'uploads/thumb.jpg';
+				// $type = 'image/jpeg';
+				// header('Content-Type:'.$type);
+				// header('Content-Length: ' . filesize($file));
+				// readfile($file);
+
+			}
+
 
 		}
-
-
 	}
 }
 
@@ -249,37 +254,35 @@ if(isset($_FILES['image']))
 						<button type="reset" id="clear">Clear</button>
 					</p>
 				</fieldset>
-			</form>
+		
 
 				<fieldset>
 
-					<form method="post" action="#" enctype="multipart/form-data">
+					<!-- <form method="post" action="#" enctype="multipart/form-data"> -->
 						<label for="image">Image Filename: </label>
 						<input type="file" name="image" id="image">
 						<input type="submit" name="submit" value="Upload Image">
-					</form>
+					<!-- </form> -->
 
 				</fieldset>
 
 				<fieldset>
 					<div class="formfield">
-						<?php 
-						$captcha = $_SESSION['captcha_text'];
-						 echo $_SESSION['captcha_text'];
-						 
-						?>
 	
 					    <label for="captcha" class="customer">Please Enter the Captcha Text</label>
 					    <br />
 
-					    <img src="captcha.php" alt="CAPTCHA" class="captcha-image"><i class="fas fa-redo refresh-captcha"></i>
+					    <img src="captcha.php" alt="CAPTCHA" class="captcha-image">
+
+					    <img class="refresh-captcha" src="cflogo.jpg" />
 					    <br />
 					    <input type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
 
 					    <div class="customer_error error" id="captcha_error">* Please enter captcha!</div>
 					</div>
 				</fieldset>
-				<fieldset>
+			
+		
 
 						<?php if(isset($_FILES['image']) && $_FILES['image']['error'] > 0): ?>
 							<p>Sorry, an error happened while uploading ur image. please try again. 
@@ -289,8 +292,9 @@ if(isset($_FILES['image']))
             				<img src="uploads\thumb.<?= $imgExt ?>"  />
         				<?php endif ?>
 						
-				
-				</fieldset>
+				</form>
+			
+
 		</div>
 
 
@@ -330,7 +334,8 @@ if(isset($_FILES['image']))
 	<script>
 		var refreshButton = document.querySelector(".refresh-captcha");
 			refreshButton.onclick = function() {
-			  document.querySelector(".captcha-image").src = 'captcha.php?' + Date.Now();
+			  alert("!!!");
+			  //document.querySelector(".captcha-image").src = 'captcha.php?' + Date.Now();
 			}
 	</script>
 	</body>
