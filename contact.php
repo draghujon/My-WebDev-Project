@@ -269,12 +269,12 @@ if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
 				<fieldset>
 					<div class="formfield">
 	
-					    <label for="captcha" class="customer">Please Enter the Captcha Text</label>
+					    <label for="captcha" class="customer">Enter Captcha Text</label>
 					    <br />
 
 					    <img src="captcha.php" alt="CAPTCHA" class="captcha-image">
 
-					    <img class="refresh-captcha" src="cflogo.jpg" />
+					    <img class="refresh-captcha" src="captcha-refresh.jpg" />
 					    <br />
 					    <input type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
 
@@ -334,8 +334,8 @@ if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
 	<script>
 		var refreshButton = document.querySelector(".refresh-captcha");
 			refreshButton.onclick = function() {
-			  alert("!!!");
-			  //document.querySelector(".captcha-image").src = 'captcha.php?' + Date.Now();
+			 
+			  document.querySelector(".captcha-image").src = 'captcha.php';
 			}
 	</script>
 	</body>
