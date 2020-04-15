@@ -298,20 +298,6 @@ if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
 		</div>
 
 
-<?php if(isset($_FILES['image'])): ?>
-		<?php if ($upload_error_detected): ?>
-
-        <p>Error Number: <?= $_FILES['image']['error'] ?></p>
-
-    <?php elseif ($image_upload_detected): ?>
-
-        <p>Client-Side Filename: <?= $_FILES['image']['name'] ?></p>
-        <p>Apparent Mime Type:   <?= $_FILES['image']['type'] ?></p>
-        <p>Size in Bytes:        <?= $_FILES['image']['size'] ?></p>
-        <p>Temporary Path:       <?= $_FILES['image']['tmp_name'] ?></p>
-
-    <?php endif ?>
-<?php endif ?>
 	<footer id = "footer">
 		<nav id = "footerBanner">
 			<ul>

@@ -69,8 +69,8 @@
 	</nav>
 
 		<form method="post" action="search.php" id="searchform">
-			<input type="text" name="search">
-			<input type="submit" name="submit" value="Search">
+			<input type="text" name="search" placeholder="Search for services">
+			<input type="submit" name="submit" value="Search" >
 		</form>
 
 	<div id= "content">
