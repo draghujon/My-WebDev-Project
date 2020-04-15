@@ -28,36 +28,47 @@
 			require 'connect.php';
 			//Do the insert query
 			$serviceName = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-			$serviceDescription = filter_input(INPUT_POST, 'description', FILTER_SANITIZE_STRING);
+			$serviceDescription = filter_input(INPUT_POST, 'description');
 			$servicePrice = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
 
-			$query = "INSERT INTO services (name, description, price)
-					  VALUES (:name, :description, :price)";
+			
+			//echo "test" . $serviceDescription;
+			//exit;
+			$serviceDescription = strip_tags($serviceDescription, 
+							'<a><cite><h2><p><tfoot><abbr><code><h3><pre><th><acronym><col><h4><small><thead><address><colgroup><h5><span><tr><b><dd><h6><strike><tt><big><div><hr><strong><u><blockquote><dl><html><sub><ul><body><dt><i><sup><br><em><img><table><caption><font><li><tbody><center><h1><ol><td>');
 
-			$statement = $db->prepare($query);
-			$statement->bindValue(':name', $serviceName);;
-			$statement->bindValue(':description', $serviceDescription);
-			$statement->bindValue(':price', $servicePrice);
-			$statement->execute();
+			$slug = preg_replace('/\s/','-', strtolower($serviceDescription)); 
 
-			$insert_id = $db->lastInsertId();
+				$query = "INSERT INTO services (name, description, slug, price)
+					  VALUES (:name, :description, :slug, :price)";
+
+				$statement = $db->prepare($query);
+				$statement->bindValue(':name', $serviceName);;
+				$statement->bindValue(':description', $serviceDescription);
+				$statement->bindValue(':slug', $slug);
+				$statement->bindValue(':price', $servicePrice);
+				$statement->execute();
+
+				$insert_id = $db->lastInsertId();
+				
+				header("Location: services.php");
 			
-			header("Location: services.php");
-			
-			
+
 		}
 	}
-	else
-	{
 
-	}
 ?>
 <!DOCTYPE html>
 <html>	
 <head>
 	<meta charset="UTF-8" />
 	<link rel="stylesheet" type="text/css" href="cfstyles.css" />
-
+    <script src="https://cdn.tiny.cloud/1/4mriwheprmpjqosi0mxoiv1cero7lggedrv83xjemydqaf1n/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({
+          selector: '#inputDescription'
+        });
+  </script>
 	<title>CF Computing</title>
 </head>
 
@@ -97,14 +108,24 @@
 
         <div>
           <label for="inputDescription">Description</label>
-          <input type="text" class="form-control" name="description" id="inputDescription" placeholder="Description">
+          <!--<input type="text" class="form-control" name="description" id="inputDescription" placeholder="Description">-->
+          <textarea id="inputDescription" name="description" rows="8" cols="50"></textarea>
         </div>
 
         <div>
           <label for="inputPrice">Price</label>
           <input type="text" class="form-control" name="price" id="inputPrice">
         </div>
-	
+	            <script>
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: 'a11ychecker advcode casechange formatpainter linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
+                  toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
+                  toolbar_mode: 'floating',
+                  tinycomments_mode: 'embedded',
+                  tinycomments_author: 'Author name',
+                });
+            </script>
     
       <input type="submit" name="command" value="Add Service" />
     </form> 

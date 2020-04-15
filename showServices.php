@@ -14,26 +14,40 @@
    if(!isset($_SESSION['id']))
    {
         header("Location: login.php");
+        exit;
    }
 
         $post_name = "";
         $post_desc = "";
+
         $post_price = "";
         //$service_id = $_SESSION['id'];
         $servId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $title = filter_input(INPUT_GET, 'title');
 
-        $query = "SELECT id, name, description, price FROM services WHERE id = :servId";
+        $query = "SELECT id, name, description, slug, price FROM services WHERE id = :servId AND slug = :slug";
 
         $statement = $db->prepare($query); // Returns a PDOStatement object.
         $statement->bindValue(':servId', $servId); 
+        $statement->bindValue(':slug', $title); 
         $statement->execute(); // The query is now executed.
         
         $row = $statement->fetch();
-        
-        $serv_id = $row['id'];
-        $serv_name = $row['name'];
-        $serv_desc = $row['description'];
-        $serv_price = $row['price'];
+        if($row)
+        {
+            $serv_id = $row['id'];
+            $serv_name = $row['name'];
+            $serv_desc = $row['description'];
+            $serv_slug = $row['slug'];
+            $serv_price = $row['price'];
+        }
+        else
+        {
+            $_SESSION['message'] = "Selected page does not exist in the db!";
+            header("Location: services.php");
+            exit;
+        }
+
 
 if(isset($_POST['create']))
 {
@@ -94,6 +108,7 @@ if(isset($_POST['create']))
     <meta charset="utf-8">
     <title>CF Computing</title>
     <link rel="stylesheet" href="cfstyles.css" type="text/css">
+
 </head>
 <body>
     <header>
@@ -130,7 +145,7 @@ if(isset($_POST['create']))
           </p>
           <p>
             <small>
-              <?= $serv_price ?>
+              <?= sprintf('$%.2f', $serv_price) ?>
             <!-- <a href="ShowServices.php">comment</a>-->
 
             </small>

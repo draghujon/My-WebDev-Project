@@ -42,7 +42,7 @@
 		echo "You are not an admin!";
 	}
 
-        $query = "SELECT id, name, description, price FROM services";
+        $query = "SELECT id, name, description, slug, price FROM services";
 
         $statement = $db->prepare($query); // Returns a PDOStatement object.
         //$statement->bindValue(':id', $id); 
@@ -56,7 +56,12 @@
 <head>
 	<meta charset="UTF-8" />
 	<link rel="stylesheet" type="text/css" href="cfstyles.css" />
-	<script></script>
+	<script src="https://cdn.tiny.cloud/1/4mriwheprmpjqosi0mxoiv1cero7lggedrv83xjemydqaf1n/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+	  <script>
+    tinymce.init({
+      selector: '#inputDescription'
+    });
+  </script>
 	<title>Services</title>
 </head>
 <body>
@@ -94,17 +99,35 @@
 		<h2><a href="createServices.php">Create Services</a></h2>
 	<?php endif ?>
 	<h2>Welcome to my services page, please check below for more information!</h2>
+
+	<?php if(isset($_SESSION['message'])): ?>
+		<p><?= $_SESSION['message'] ?></p>
+	<?php 
+		unset($_SESSION['message']);
+		endif; 
+	?>
 	
 	<?php while ($row = $statement->fetch()): ?>
         <div id="services">
-          <h4><a href="showServices.php?id=<?= $row['id'] ?>"> <?= $row['name'] ?></a></h4>
+          <h4><a href="showServices.php?id=<?= $row['id'] ?>&title=<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4>
+          <script>
+                tinymce.init({
+                  selector: <?= $row['description'] ?>,
+                  plugins: 'a11ychecker advcode casechange formatpainter linkchecker autolink lists checklist media mediaembed pageembed permanentpen powerpaste table advtable tinycomments tinymcespellchecker',
+                  toolbar: 'a11ycheck addcomment showcomments casechange checklist code formatpainter pageembed permanentpen table',
+                  toolbar_mode: 'floating',
+                  tinycomments_mode: 'embedded',
+                  tinycomments_author: 'Author name',
+                });
+            </script>
           <p>
             <?= $row['description'] ?>
 
           </p>
+            
           <p>
             <small>
-              <?= $row['price'] ?>
+              <?= sprintf('$%.2f', $row['price']) ?>
 
               <?php if(isset($_SESSION['admin']) && $_SESSION['admin'] === 1): ?>
               	<a href="updateDeleteServices.php?id=<?= $row['id'] ?>">edit</a>
