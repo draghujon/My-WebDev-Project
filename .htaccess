@@ -1,3 +1,19 @@
-RewriteEngine on 
+RewriteEngine on
+
+RewriteCond %{REQUEST_URI} services/.+$
+RewriteRule services/(.*) $1 [NC,QSA]
+
+RewriteCond %{REQUEST_URI} services/.+$
+RewriteRule services/(.*) $1 [NC,QSA]
+
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule /?/([0-9]+)$  /Project/showServices.php?id=$1 [NS]
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule services/([0-9]+)/(.*) showServices.php?id=$1&title=$2 [NC,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .*/([^/.]+)$ showServices.php?id=$1&title=$2 [NC,QSA]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^./]+)$ showServices.php?id=$1&title=$2 [NC,QSA]

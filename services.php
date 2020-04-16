@@ -33,36 +33,34 @@
 	{
 		if($_SESSION['admin'] === '1')
 		{
-			echo "You are the admin!";
-
+			$adminMsg = "You are the admin!";
 		}
 	}
 	else
 	{
-		echo "You are not an admin!";
+		$adminMsg = "You are not the admin!";
 	}
 
         $query = "SELECT id, name, description, slug, price FROM services";
 
-        $statement = $db->prepare($query); // Returns a PDOStatement object.
-        //$statement->bindValue(':id', $id); 
-        $statement->execute(); // The query is now executed.
-        
-        //$row = $statement->fetchAll();
+        $statement = $db->prepare($query); 
 
+        $statement->execute(); 
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="UTF-8" />
 	<link rel="stylesheet" type="text/css" href="cfstyles.css" />
-	<script src="https://cdn.tiny.cloud/1/4mriwheprmpjqosi0mxoiv1cero7lggedrv83xjemydqaf1n/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-	  <script>
-    tinymce.init({
-      selector: '#inputDescription'
-    });
-  </script>
 	<title>Services</title>
+	<script src="https://cdn.tiny.cloud/1/4mriwheprmpjqosi0mxoiv1cero7lggedrv83xjemydqaf1n/tinymce/5/tinymce.min.js" referrerpolicy="origin">
+	</script>
+
+	<script>
+	    tinymce.init({
+	      selector: '#inputDescription'
+    	});
+    </script>
 </head>
 <body>
 	<header>
@@ -99,6 +97,7 @@
 		<h2><a href="createServices.php">Create Services</a></h2>
 	<?php endif ?>
 	<h2>Welcome to my services page, please check below for more information!</h2>
+	<h5><?= $adminMsg ?></h5>
 
 	<?php if(isset($_SESSION['message'])): ?>
 		<p><?= $_SESSION['message'] ?></p>
@@ -109,7 +108,8 @@
 	
 	<?php while ($row = $statement->fetch()): ?>
         <div id="services">
-          <h4><a href="showServices.php?id=<?= $row['id'] ?>&title=<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4>
+          <!-- <h4><a href="showServices.php?id=<?= $row['id'] ?>&title=<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4> -->
+          <h4><a href="services/<?= $row['id'] ?>/<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4>
           <script>
                 tinymce.init({
                   selector: <?= $row['description'] ?>,

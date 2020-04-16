@@ -17,5 +17,5 @@
         print "Error: " . $e->getMessage();
         die(); // Force execution to stop on errors.
     }
-    echo 'connected!';
+
 ?>
