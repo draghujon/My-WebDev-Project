@@ -1,0 +1,3 @@
+RewriteEngine on 
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule /?/([0-9]+)$  /Project/showServices.php?id=$1 [NS]
