@@ -38,20 +38,16 @@
 
 	if(isset($_GET['sort']))
 	{
-		echo "IN HERE";
 		if($_GET['sort'] === 'created_At')
 		{
-			echo "Created at";
 			$sort = 'c.created_At';
 		}
 		else if($_GET['sort'] === 'username')
 		{
-			echo "Username";
 			$sort = 'u.username';
 		}
 		else if($_GET['sort'] === 'userIdFK')
 		{
-			echo "User ID";
 			$sort = 'c.userIdFK';
 		}
 
@@ -72,7 +68,6 @@
 <head>
 	<meta charset="UTF-8" />
 	<link rel="stylesheet" type="text/css" href="cfstyles.css" />
-	<script></script>
 	<title>CF Computing</title>
 </head>
 <body>
