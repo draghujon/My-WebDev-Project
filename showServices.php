@@ -26,8 +26,6 @@
         $servId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         $title = filter_input(INPUT_GET, 'title');
 
-    echo $servId . ", " . $title;
-    exit;
         $query = "SELECT id, name, description, slug, price FROM services WHERE id = :servId AND slug = :slug";
 
         $statement = $db->prepare($query); // Returns a PDOStatement object.

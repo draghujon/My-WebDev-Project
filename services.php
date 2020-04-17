@@ -108,8 +108,8 @@
 	
 	<?php while ($row = $statement->fetch()): ?>
         <div id="services">
-          <!-- <h4><a href="showServices.php?id=<?= $row['id'] ?>&title=<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4> -->
-          <h4><a href="services/<?= $row['id'] ?>/<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4>
+          <h4><a href="showServices.php?id=<?= $row['id'] ?>&title=<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4>
+          <!-- <h4><a href="services/<?= $row['id'] ?>/<?= $row['slug'] ?>"> <?= $row['name'] ?></a></h4> -->
           <script>
                 tinymce.init({
                   selector: <?= $row['description'] ?>,
