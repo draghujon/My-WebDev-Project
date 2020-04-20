@@ -14,7 +14,6 @@ if(isset($_GET['id']))
 	require 'connect.php';
 	if($_GET['id'])
 	{
-		echo "here?";
 		$_SESSION['user_id'] = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 		
 		$query = "SELECT * FROM user WHERE id = :userId";
@@ -26,7 +25,6 @@ if(isset($_GET['id']))
 		$row = $statement->fetch();
 		if(!empty($row))
 		{
-			echo "IN HERE";
 			$user_id = $row['id'];
 			$user_name = $row['username'];
 			$user_hash = $row['password'];
@@ -53,7 +51,6 @@ if(isset($_POST['command']))
 		$row = $statement->fetch();
 		if(!empty($row))
 		{
-			echo "IN HERE2";
 			$user_id = $row['id'];
 			$user_name = $row['username'];
 			$user_hash = $row['password'];
@@ -100,7 +97,7 @@ if(isset($_POST['update']))
 
 	if($_POST['update'] === 'Update' && $isTrue)
 	{
-		echo "INSIDE Update" . $_SESSION['user_id'];
+		//echo "INSIDE Update" . $_SESSION['user_id'];
 		$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
 		$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
 		$password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
