@@ -27,6 +27,7 @@
 		}
 	}
 
+$captcha = "";
 
 if(isset($_POST['command']))
 {
@@ -81,7 +82,7 @@ if(isset($_POST['command']))
    //                              'abcdefghkmnopqrstuvwxyz','6',
    //                              '240','80','000088');
 		} else {
-        	echo '<p>You entered an incorrect Captcha.</p>';
+        	$captcha =  '<p>You entered an incorrect Captcha.</p>';
 			//unset($_SESSION['captcha_text']);
 			//exit;
     }
@@ -141,7 +142,6 @@ if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
 
 	            $query = "INSERT INTO images (name) VALUES (:imagename)";
 
-				echo $image_file;
 		        $statement = $db->prepare($query);
 		        $statement->bindValue(':imagename', $image_file);
 		        //$statement->bindValue(':image', $image);
@@ -279,11 +279,14 @@ if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
 					    <input type="text" id="captcha" name="captcha_challenge" pattern="[A-Z]{6}">
 
 					    <div class="customer_error error" id="captcha_error">* Please enter captcha!</div>
+					    <?php if("captcha_error"): ?>
+					    	<?= $captcha ?>
+					    <?php else: ?>
+					    	<?= $captcha ?>
+					    <?php endif ?>
 					</div>
 				</fieldset>
 			
-		
-
 						<?php if(isset($_FILES['image']) && $_FILES['image']['error'] > 0): ?>
 							<p>Sorry, an error happened while uploading ur image. please try again. 
 								Error Number: <?= $_FILES['image']['error'] ?></p>
@@ -291,7 +294,7 @@ if(isset($_POST['submit']) && $_POST['submit'] === 'Upload Image')
         				<?php elseif (isset($_FILES['image'])): ?>
             				<img src="uploads\thumb.<?= $imgExt ?>"  />
         				<?php endif ?>
-						
+
 				</form>
 			
 
